@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model eleves {
+  idEleves   Int     @id @default(autoincrement())
+  nomEleves String  @db.VarChar(50)
+  prenomEleves String  @db.VarChar(50)
+  idClasses Int
+  classes   classes @relation(fields: [idClasses], references: [idClasses],  onUpdate: Restrict, map: "classes_ibfk_1")
+  notes notes[]
+
+  @@index([idClasses], map: "idClasses")
+  
+}
+
+model formateurs {
+  idFormateurs   Int     @id @default(autoincrement())
+  nomFormateurs String  @db.VarChar(50)
+  prenomFormateurs String  @db.VarChar(50)
+  cours cours[]
+}
+
+
+model matieres {
+  idMatieres  Int     @id @default(autoincrement())
+  nomMatieres String  @db.VarChar(50)
+  parcours parcours[]
+  cours cours[]
+  notes notes[]
+}
+
+model cours {
+  idCours  Int     @id @default(autoincrement())
+  idFormateurs Int
+  idMatieres Int
+  dateDebut DateTime
+  dateFin DateTime
+  lieu String
+  matieres   matieres @relation(fields: [idMatieres], references: [idMatieres],onDelete: Cascade,  onUpdate: Restrict, map: "matieres_ibfk_1")
+  formateurs   formateurs @relation(fields: [idFormateurs], references: [idFormateurs],  onUpdate: Restrict, map: "formateurs_ibfk_1")
+
+  @@index([idFormateurs], map: "idFormateurs")
+  @@index([idMatieres], map: "idMatieres")
+
+  classes classes[]
+}
+
+model parcours {
+  idParcours  Int     @id @default(autoincrement())
+  nomParcours String  @db.VarChar(50)
+  matieres matieres[]
+  classes classes[]
+}
+
+model classes {
+  idClasses  Int     @id @default(autoincrement())
+  nomClasses String  @db.VarChar(50)
+  idParcours Int
+
+  parcours   parcours @relation(fields: [idParcours], references: [idParcours], onDelete: Cascade,  onUpdate: Restrict, map: "parcours_ibfk_1")
+  eleves eleves[]
+  cours cours[]
+  
+  @@index([idParcours], map: "idParcours")
+
+}
+
+model notes {
+  idNotes  Int     @id @default(autoincrement())
+  note Int 
+  idMatieres Int 
+  idEleves Int 
+
+  matieres   matieres @relation(fields: [idMatieres], references: [idMatieres],onDelete: Cascade,  onUpdate: Restrict, map: "matieres_ibfk_2")
+  eleves   eleves @relation(fields: [idEleves], references: [idEleves], onDelete: Cascade, onUpdate: Restrict, map: "eleves_ibfk_1")
+
+  @@index([idMatieres], map: "idMatieres")
+  @@index([idEleves], map: "idEleves")
+
+}
+
+

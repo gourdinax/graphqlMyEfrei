@@ -73,7 +73,7 @@ model classes {
 
 model notes {
   idNotes  Int     @id @default(autoincrement())
-  note Int 
+  note Float 
   idMatieres Int 
   idEleves Int 
 

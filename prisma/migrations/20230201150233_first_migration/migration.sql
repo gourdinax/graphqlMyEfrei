@@ -61,7 +61,7 @@ CREATE TABLE `classes` (
 -- CreateTable
 CREATE TABLE `notes` (
     `idNotes` INTEGER NOT NULL AUTO_INCREMENT,
-    `note` INTEGER NOT NULL,
+    `note` FLOAT NOT NULL,
     `idMatieres` INTEGER NOT NULL,
     `idEleves` INTEGER NOT NULL,
 

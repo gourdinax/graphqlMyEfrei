@@ -116,6 +116,9 @@ type Query{
 
     getNotes: [Notes]
     getNotesByNom(nom : String) : [Notes]
+
+    getClasses: [Classes]
+    getClassesByNom(nom : String) : [Classes]
 }
 
 type Mutation{
@@ -132,6 +135,13 @@ type Mutation{
     : [Notes]
     updateNotes(id: Int, note : Float, idMatieres : Int, idEleves : Int) 
     : [Notes]
+
+    addClasses(id: Int, nom : String, idParcours : Int) 
+    : [Classes]
+    delClasses(id: Int) 
+    : [Classes]
+    updateClasses(id: Int, nom : String, idParcours : Int) 
+    : [Classes]
 }
 
 `)
@@ -163,6 +173,15 @@ let root = {
         })
             
         if(!eleveF) throw new Error('Eleve avec meme nom et même prenom existe déjà')
+
+
+        const idClassesF = await prisma.classes.findUnique({
+            where:{
+                 idClasses : idClasses,
+             }
+        })
+
+        if(!idClassesF) throw new Error('Classe non exist')
 
         await prisma.eleves.create({
          data:{
@@ -211,7 +230,15 @@ let root = {
              }
         })
             
-        if(!eleveF) throw new Error('Eleve avec meme nom et même prenom existe déjà')
+        if(eleveF[0]) throw new Error('Eleve avec meme nom et même prenom existe déjà')
+
+        const idClassesF = await prisma.classes.findUnique({
+            where:{
+                 idClasses : idClasses,
+             }
+        })
+
+        if(!idClassesF) throw new Error('Classe non exist')
              
         await prisma.eleves.update({
         where:{
@@ -252,6 +279,14 @@ let root = {
     addNotes : async ({id, note, idEleves, idMatieres}) => {
 
         if(note<0 || note >20) throw new Error('Note doit etre compris entre 0 et 20')
+
+        const idMatieresF = await prisma.matieres.findUnique({
+            where:{
+                 idMatieres : idMatieres,
+             }
+        })
+
+        if(!idMatieresF) throw new Error('Matiere non exist')
 
         await prisma.notes.create({
          data:{
@@ -299,13 +334,20 @@ let root = {
              })
             
         if(!noteF) throw new Error('Note non exist')
+
+        const idMatieresF = await prisma.matieres.findUnique({
+            where:{
+                 idMatieres : idMatieres,
+             }
+        })
+
+        if(!idMatieresF) throw new Error('Matiere non exist')
              
         await prisma.notes.update({
         where:{
              idNotes : id,
          },
          data: {
-            idNotes : id,
             note : note,
             idEleves : idEleves,
             idMatieres : idMatieres
@@ -314,6 +356,113 @@ let root = {
          return await prisma.notes.findMany({
          });
      },
+
+//CLASSES
+getClasses: async () => {
+    return await prisma.classes.findMany({
+        include:{ 
+            parcours: true,
+            eleves : true,
+            cours : true
+         },
+    });
+},
+getClassesByNom: async ({nom}) => {
+    return await prisma.classes.findMany({
+        where: {
+             nomClasses: nom  
+            },
+        include: { 
+            parcours: true,
+            eleves : true,
+            cours : true 
+        }
+    });    
+},
+addClasses : async ({id, nom, idParcours}) => {
+
+    const classeF = await prisma.classes.findMany({
+        where:{
+             nomClasses : nom,
+         }
+         })
+
+    if(classeF) throw new Error('Classe avec le même nom existe deja')
+
+    await prisma.classes.create({
+     data:{
+         idClasses : id,
+         nomClasses : nom,
+         idParcours : idParcours,
+     }
+     })
+     return await prisma.classes.findMany({
+        include: { 
+            parcours: true,
+            eleves : true,
+            cours : true 
+        }
+     });
+ },
+
+ delClasses: async ({id}) => {
+
+    const classeF = await prisma.classes.findUnique({
+        where:{
+             idClasses : id,
+         }
+         })
+        
+    if(!classeF) throw new Error('Note non exist')
+
+    await prisma.classes.delete({
+        where:{
+             idClasses : id,
+         }
+         })
+         return await prisma.classes.findMany({
+         });
+ },
+
+ updateClasses : async ({id, nom, idParcours}) => {
+
+    const classeN = await prisma.classes.findMany({
+        where:{
+             nomClasses : nom,
+         }
+         })
+
+    if(classeN[0]) throw new Error('Classe avec le même nom existe deja')
+
+    const classeF = await prisma.classes.findUnique({
+        where:{
+             idClasses : id,
+         }
+         })
+        
+    if(!classeF) throw new Error('Classe non exist')
+
+    const idParcoursF = await prisma.parcours.findUnique({
+        where:{
+             idParcours : idParcours,
+         }
+    })
+
+    if(!idParcoursF) throw new Error('Parcours non exist')
+    
+    await prisma.classes.update({
+    where:{
+         idClasses : id,
+     },
+     data: {
+        nomClasses : nom,
+        idParcours : idParcours,
+     }
+     })
+     return await prisma.classes.findMany({
+     });
+ },
+
 }
 
 app.use("/graphql", graphqlHTTP ({

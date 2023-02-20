@@ -1,1 +1,1 @@
-rebuild prisma client (note Int -> note Float)
+si la jointure existe ex : update note idMatiere 5 est ce que la matiere 5 existe ?

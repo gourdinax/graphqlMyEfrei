@@ -3,5 +3,15 @@ Notes - done
 Classes - done
 Formateurs - done
 Matieres - done
-Parcours -
-Cours - 
+Parcours - done
+Cours - done approximately
+
+
+calcul pour savoir date début date de fin au meme lieu impossible
+classe avec 2 cours au meme moment impossible
+cours doit se terminer entre 8h et 19h ?
+
+Erreur lors de la du delParcours OnCascade porbleme foreign key
+"\nInvalid `prisma.parcours.delete()` invocation:\n\n\nForeign key constraint failed on the field: `idClasses`",
+
+tester le add del update de cours 

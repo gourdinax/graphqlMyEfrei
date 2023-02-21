@@ -8,10 +8,7 @@ const app = express()
 const prisma = new PrismaClient()
 
 async function main(){
-    const eleves = await prisma.eleves.findMany()
-    const classes = await prisma.classes.findMany()
-    
-    
+
     const notes = await prisma.notes.findMany({
         include:{
             eleves:{
@@ -76,7 +73,7 @@ type Cours {
     lieu : String
     classes : [Classes]
     matieres : Matieres
-    formateurs : [Formateurs]
+    formateurs : Formateurs
         
 }
 
@@ -131,6 +128,11 @@ type Query{
 
     getParcours: [Parcours]
     getParcoursByNom(nom : String) : [Parcours]
+
+    getCours: [Cours]
+    getCoursByLieu(lieu : String) : [Cours]
+    getCoursById(id : Int) : [Cours]
+
 }
 
 type Mutation{
@@ -175,6 +177,13 @@ type Mutation{
     : [Parcours]
     updateParcours(id: Int, nom : String) 
     : [Parcours]
+
+    addCours(idCours: Int, idFormateur: Int, idMatieres: Int, dateDebut : String, dateFin: String, lieu : String) 
+    : [Cours]
+    delCours(id: Int) 
+    : [Cours]
+    updateCours(idCours: Int, idFormateur: Int, idMatieres: Int, dateDebut : String, dateFin: String, lieu : String) 
+    : [Cours]
 }
 
 `)
@@ -862,6 +871,169 @@ addParcours : async ({id, nom}) => {
      });
  },
 
+    // Cours
+
+    getCours: async () => {
+        return await prisma.cours.findMany({
+            include: { 
+                formateurs : true,
+                matieres : true,
+                classes : true
+            }
+        });
+    },
+    
+    getCoursByLieu: async ({lieu}) => {
+        return await prisma.cours.findMany({
+            where: {
+                lieu: lieu
+            },
+            include: { 
+                formateurs : true,
+                matieres : true,
+                classes : true
+            }
+        });    
+    },
+
+    getCoursById: async ({id}) => {
+        return await prisma.cours.findMany({
+            where: {
+                idCours: id
+            },
+            include: { 
+                formateurs : true,
+                matieres : true,
+                classes : true
+            }
+        });    
+    },
+    
+    
+    addCours : async ({idCours, idFormateurs, idMatieres, dateDebut, dateFin, lieu}) => {
+    
+        const coursF = await prisma.cours.findMany({
+            where:{
+                dateDebut : dateDebut,
+                lieu : lieu
+             }
+        })
+            
+        if(coursF[0]) throw new Error('Cours même lieu même horraire existe deja') // a revoir
+
+        const idFormateursF = await prisma.formateurs.findUnique({
+            where:{
+                 idFormateurs : id,
+             }
+             })
+            
+        if(!idFormateursF) throw new Error('Formateurs non exist')
+
+        const idMatieresF = await prisma.matieres.findUnique({
+            where:{
+                 idMatieres : id,
+             }
+             })
+            
+        if(!idMatieresF) throw new Error('Matieres non exist')
+    
+        await prisma.cours.create({
+         data:{
+             idCours : idCours,
+             idFormateurs : idFormateurs,
+             idMatieres : idMatieres,
+             dateDebut : dateDebut,
+             dateFin : dateFin,
+             lieu : lieu
+         }
+         })
+         return await prisma.cours.findMany({
+            include: { 
+                formateurs : true,
+                matieres : true,
+                classes : true
+            }
+         });
+     },
+    
+     delCours : async ({id}) => {
+    
+        const coursF = await prisma.cours.findUnique({
+            where:{
+                 idCours : id,
+             }
+             })
+            
+        if(!coursF) throw new Error('Cours non exist')
+             
+        await prisma.cours.delete({
+        where:{
+             idCours : id,
+         }
+         })
+         return await prisma.cours.findMany({
+            include: { 
+                formateurs : true,
+                matieres : true,
+                classes : true
+            }
+         });
+     },
+     updateCours: async ({id, idFormateurs, idMatieres, dateDebut, dateFin, lieu}) => {
+    
+        const coursF = await prisma.cours.findUnique({
+            where:{
+                 idCours : id,
+             }
+             })
+            
+        if(!coursF) throw new Error('Cours non exist')
+    
+        const coursLieuD = await prisma.cours.findMany({
+            where:{
+                dateDebut : dateDebut,
+                lieu : lieu
+             }
+        })
+            
+        if(coursLieuD[0]) throw new Error('Cours même lieu même horraire existe deja') // a revoir
+
+        const idFormateursF = await prisma.formateurs.findUnique({
+            where:{
+                 idFormateurs : id,
+             }
+             })
+            
+        if(!idFormateursF) throw new Error('Formateurs non exist')
+
+        const idMatieresF = await prisma.matieres.findUnique({
+            where:{
+                 idMatieres : id,
+             }
+             })
+            
+        if(!idMatieresF) throw new Error('Matieres non exist')
+             
+        await prisma.cours.update({
+        where:{
+             idCours : id,
+         },
+         data:{
+            idFormateurs : idFormateurs,
+            idMatieres : idMatieres,
+            dateDebut : dateDebut,
+            dateFin : dateFin,
+            lieu : lieu
+        }
+         })
+         return await prisma.parcours.findMany({
+            include: { 
+                formateurs : true,
+                matieres : true,
+                classes : true
+            }
+         });
+     },
 
 }
 

@@ -122,6 +122,9 @@ type Query{
 
     getFormateurs: [Formateurs]
     getFormateursByNom(nom : String) : [Formateurs]
+
+    getMatieres: [Matieres]
+    getMatieresByNom(nom : String) : [Matieres]
 }
 
 type Mutation{
@@ -152,6 +155,13 @@ type Mutation{
     : [Formateurs]
     updateFormateurs(id: Int, nom : String, prenom : String) 
     : [Formateurs]
+
+    addMatieres(id: Int, nom : String) 
+    : [Matieres]
+    delMatieres(id: Int) 
+    : [Matieres]
+    updateMatieres(id: Int, nom : String) 
+    : [Matieres]
 }
 
 `)
@@ -298,6 +308,14 @@ let root = {
 
         if(!idMatieresF) throw new Error('Matiere non exist')
 
+        const idElevesF = await prisma.eleves.findUnique({
+            where:{
+                 idEleves : idEleves,
+             }
+        })
+
+        if(!idElevesF) throw new Error('Eleve non exist')
+
         await prisma.notes.create({
          data:{
              idNotes : id,
@@ -352,6 +370,14 @@ let root = {
         })
 
         if(!idMatieresF) throw new Error('Matiere non exist')
+
+        const idElevesF = await prisma.eleves.findUnique({
+            where:{
+                 idEleves : idEleves,
+             }
+        })
+
+        if(!idElevesF) throw new Error('Eleve non exist')
              
         await prisma.notes.update({
         where:{
@@ -398,6 +424,14 @@ addClasses : async ({id, nom, idParcours}) => {
          })
 
     if(classeF) throw new Error('Classe avec le même nom existe deja')
+
+    const idParcoursF = await prisma.parcours.findUnique({
+        where:{
+             idParcours : idParcours,
+         }
+    })
+
+    if(!idParcoursF) throw new Error('Parcours non exist')
 
     await prisma.classes.create({
      data:{
@@ -573,6 +607,115 @@ addFormateurs : async ({id, nom, prenom}) => {
         }
      });
  },
+
+  // MATIERES
+
+  getMatieres: async () => {
+    return await prisma.matieres.findMany({
+        include: { 
+            cours : true,
+            notes : true,
+            parcours : true
+        }
+    });
+},
+
+getMatieresByNom: async ({nom}) => {
+    return await prisma.matieres.findMany({
+        where: {
+            nomMatieres: nom
+        },
+        include: { 
+            cours : true,
+            notes : true,
+            parcours : true
+        }
+    });    
+},
+
+addMatieres : async ({id, nom}) => {
+
+    const matieresF = await prisma.matieres.findMany({
+        where:{
+            nomMatieres : nom,
+         }
+    })
+        
+    if(matieresF[0]) throw new Error('Matieres avec meme nom existe déjà')
+
+    await prisma.matieres.create({
+     data:{
+         idMatieres : id,
+         nomMatieres : nom,
+     }
+     })
+     return await prisma.matieres.findMany({
+        include: { 
+            cours : true,
+            notes : true,
+            parcours : true
+        }
+     });
+ },
+
+ delMatieres : async ({id}) => {
+
+    const matieresF = await prisma.matieres.findUnique({
+        where:{
+             idMatieres : id,
+         }
+         })
+        
+    if(!matieresF) throw new Error('Matieres non exist')
+         
+    await prisma.matieres.delete({
+    where:{
+         idMatieres : id,
+     }
+     })
+     return await prisma.matieres.findMany({
+        include: { 
+            cours : true,
+            notes : true,
+            parcours : true
+        }
+     });
+ },
+ updateMatieres : async ({id, nom}) => {
+
+    const matieresF = await prisma.matieres.findUnique({
+        where:{
+             idMatieres : id,
+         }
+         })
+        
+    if(!matieresF) throw new Error('Matieres non exist')
+
+    const matieresN = await prisma.matieres.findMany({
+        where:{
+             nomMatieres : nom,
+         }
+    })
+        
+    if(matieresN[0]) throw new Error('Matieres avec meme nom existe déjà')
+         
+    await prisma.matieres.update({
+    where:{
+         idMatieres : id,
+     },
+     data: {
+        nomMatieres : nom,
+     }
+     })
+     return await prisma.matieres.findMany({
+        include: { 
+            cours : true,
+            notes : true,
+            parcours : true
+        }
+     });
+ },
+
 
 
 }

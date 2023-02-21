@@ -113,18 +113,24 @@ type Notes {
 type Query{
     getEleves : [Eleves]
     getElevesByNom(nom : String) : [Eleves]
+    getElevesById(id : Int) : [Eleves]
 
     getNotes: [Notes]
     getNotesByNom(nom : String) : [Notes]
+    getNotesByIdEleves(id : Int) : [Notes]
 
     getClasses: [Classes]
     getClassesByNom(nom : String) : [Classes]
 
     getFormateurs: [Formateurs]
     getFormateursByNom(nom : String) : [Formateurs]
+    getFormateursById(id : Int) : [Formateurs]
 
     getMatieres: [Matieres]
     getMatieresByNom(nom : String) : [Matieres]
+
+    getParcours: [Parcours]
+    getParcoursByNom(nom : String) : [Parcours]
 }
 
 type Mutation{
@@ -162,6 +168,13 @@ type Mutation{
     : [Matieres]
     updateMatieres(id: Int, nom : String) 
     : [Matieres]
+
+    addParcours(id: Int, nom : String) 
+    : [Parcours]
+    delParcours(id: Int) 
+    : [Parcours]
+    updateParcours(id: Int, nom : String) 
+    : [Parcours]
 }
 
 `)
@@ -179,6 +192,14 @@ let root = {
         return await prisma.eleves.findMany({
             where: {
                 nomEleves: nom
+            }
+        });    
+    },
+
+    getElevesById: async ({id}) => {
+        return await prisma.eleves.findMany({
+            where: {
+                idEleves: id
             }
         });    
     },
@@ -293,6 +314,17 @@ let root = {
             include: { 
                 eleves : true,
                 matieres : true
+            }
+        });    
+    },
+
+    getNotesByIdEleves: async ({id}) => {
+        return await prisma.notes.findMany({
+            where: {
+                idEleves: id
+            },
+            include:{
+                eleves : true
             }
         });    
     },
@@ -527,6 +559,17 @@ getFormateursByNom: async ({nom}) => {
     });    
 },
 
+getFormateursById: async ({id}) => {
+    return await prisma.formateurs.findMany({
+        where: {
+            idFormateurs: id
+        },
+        include: { 
+            cours : true 
+        }
+    });    
+},
+
 addFormateurs : async ({id, nom, prenom}) => {
 
     const formateurF = await prisma.formateurs.findMany({
@@ -716,9 +759,112 @@ addMatieres : async ({id, nom}) => {
      });
  },
 
+   // PARCOURS
+
+   getParcours: async () => {
+    return await prisma.parcours.findMany({
+        include: { 
+            classes : true,
+            matieres : true,
+        }
+    });
+},
+
+getParcoursByNom: async ({nom}) => {
+    return await prisma.parcours.findMany({
+        where: {
+            nomParcours: nom
+        },
+        include: { 
+            classes : true,
+            matieres : true,
+        }
+    });    
+},
+
+addParcours : async ({id, nom}) => {
+
+    const parcoursF = await prisma.parcours.findMany({
+        where:{
+            nomParcours : nom,
+         }
+    })
+        
+    if(parcoursF[0]) throw new Error('Parcours avec meme nom existe déjà')
+
+    await prisma.parcours.create({
+     data:{
+         idParcours : id,
+         nomParcours : nom,
+     }
+     })
+     return await prisma.parcours.findMany({
+        include: { 
+            classes : true,
+            matieres : true,
+        }
+     });
+ },
+
+ delParcours : async ({id}) => {
+
+    const parcoursF = await prisma.parcours.findUnique({
+        where:{
+             idParcours : id,
+         }
+         })
+        
+    if(!parcoursF) throw new Error('Parcours non exist')
+         
+    await prisma.parcours.delete({
+    where:{
+         idParcours : id,
+     }
+     })
+     return await prisma.parcours.findMany({
+        include: { 
+            classes : true,
+            matieres : true,
+        }
+     });
+ },
+ updateParcours: async ({id, nom}) => {
+
+    const parcoursF = await prisma.parcours.findUnique({
+        where:{
+             idParcours : id,
+         }
+         })
+        
+    if(!parcoursF) throw new Error('Parcours non exist')
+
+    const parcoursN = await prisma.parcours.findMany({
+        where:{
+             nomParcours : nom,
+         }
+    })
+        
+    if(parcoursN[0]) throw new Error('Parcours avec meme nom existe déjà')
+         
+    await prisma.parcours.update({
+    where:{
+         idParcours : id,
+     },
+     data: {
+        nomParcours : nom,
+     }
+     })
+     return await prisma.parcours.findMany({
+        include: { 
+            classes : true,
+            matieres : true,
+        }
+     });
+ },
 
 
 }
+
 
 app.use("/graphql", graphqlHTTP ({
     schema : schema,

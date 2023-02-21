@@ -119,6 +119,9 @@ type Query{
 
     getClasses: [Classes]
     getClassesByNom(nom : String) : [Classes]
+
+    getFormateurs: [Formateurs]
+    getFormateursByNom(nom : String) : [Formateurs]
 }
 
 type Mutation{
@@ -142,6 +145,13 @@ type Mutation{
     : [Classes]
     updateClasses(id: Int, nom : String, idParcours : Int) 
     : [Classes]
+
+    addFormateurs(id: Int, nom : String, prenom : String) 
+    : [Formateurs]
+    delFormateurs(id: Int) 
+    : [Formateurs]
+    updateFormateurs(id: Int, nom : String, prenom : String) 
+    : [Formateurs]
 }
 
 `)
@@ -172,7 +182,7 @@ let root = {
              }
         })
             
-        if(!eleveF) throw new Error('Eleve avec meme nom et même prenom existe déjà')
+        if(eleveF[0]) throw new Error('Eleve avec meme nom et même prenom existe déjà')
 
 
         const idClassesF = await prisma.classes.findUnique({
@@ -462,6 +472,108 @@ addClasses : async ({id, nom, idParcours}) => {
      return await prisma.classes.findMany({
      });
  },
+ // FORMATEURS
+
+ getFormateurs: async () => {
+    return await prisma.formateurs.findMany({
+        include: { 
+            cours : true 
+        }
+    });
+},
+
+getFormateursByNom: async ({nom}) => {
+    return await prisma.formateurs.findMany({
+        where: {
+            nomFormateurs: nom
+        },
+        include: { 
+            cours : true 
+        }
+    });    
+},
+
+addFormateurs : async ({id, nom, prenom}) => {
+
+    const formateurF = await prisma.formateurs.findMany({
+        where:{
+            nomFormateurs : nom,
+            prenomFormateurs : prenom,
+         }
+    })
+        
+    if(formateurF[0]) throw new Error('Formateur avec meme nom et même prenom existe déjà')
+
+    await prisma.formateurs.create({
+     data:{
+         idFormateurs : id,
+         nomFormateurs : nom,
+         prenomFormateurs : prenom,
+     }
+     })
+     return await prisma.formateurs.findMany({
+        include: { 
+            cours : true 
+        }
+     });
+ },
+
+ delFormateurs : async ({id}) => {
+
+    const formateurF = await prisma.formateurs.findUnique({
+        where:{
+             idFormateurs : id,
+         }
+         })
+        
+    if(!formateurF) throw new Error('Formateur non exist')
+         
+    await prisma.formateurs.delete({
+    where:{
+         idFormateurs : id,
+     }
+     })
+     return await prisma.formateurs.findMany({
+        include: { 
+            cours : true 
+        }
+     });
+ },
+ updateFormateurs : async ({id, nom, prenom}) => {
+
+    const formateurF = await prisma.formateurs.findUnique({
+        where:{
+             idFormateurs : id,
+         }
+         })
+        
+    if(!formateurF) throw new Error('Formateur non exist')
+
+    const formateurN = await prisma.formateurs.findMany({
+        where:{
+             nomFormateurs : nom,
+             prenomFormateurs : prenom,
+         }
+    })
+        
+    if(formateurN[0]) throw new Error('Formateur avec meme nom et même prenom existe déjà')
+         
+    await prisma.formateurs.update({
+    where:{
+         idFormateurs : id,
+     },
+     data: {
+        nomFormateurs : nom,
+        prenomFormateurs : prenom,
+     }
+     })
+     return await prisma.formateurs.findMany({
+        include: { 
+            cours : true 
+        }
+     });
+ },
+
 
 }
 

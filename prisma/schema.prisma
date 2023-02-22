@@ -11,8 +11,8 @@ model eleves {
   idEleves   Int     @id @default(autoincrement())
   nomEleves String  @db.VarChar(50)
   prenomEleves String  @db.VarChar(50)
-  idClasses Int
-  classes   classes @relation(fields: [idClasses], references: [idClasses],  onUpdate: Restrict, map: "classes_ibfk_1")
+  idClasses Int?
+  classes   classes? @relation(fields: [idClasses], references: [idClasses],  onUpdate: Restrict, map: "classes_ibfk_1")
   notes notes[]
 
   @@index([idClasses], map: "idClasses")
@@ -37,13 +37,13 @@ model matieres {
 
 model cours {
   idCours  Int     @id @default(autoincrement())
-  idFormateurs Int
+  idFormateurs Int?
   idMatieres Int
   dateDebut DateTime
   dateFin DateTime
   lieu String
   matieres   matieres @relation(fields: [idMatieres], references: [idMatieres],onDelete: Cascade,  onUpdate: Restrict, map: "matieres_ibfk_1")
-  formateurs   formateurs @relation(fields: [idFormateurs], references: [idFormateurs],  onUpdate: Restrict, map: "formateurs_ibfk_1")
+  formateurs   formateurs? @relation(fields: [idFormateurs], references: [idFormateurs],  onUpdate: Restrict, map: "formateurs_ibfk_1")
 
   @@index([idFormateurs], map: "idFormateurs")
   @@index([idMatieres], map: "idMatieres")
@@ -61,9 +61,9 @@ model parcours {
 model classes {
   idClasses  Int     @id @default(autoincrement())
   nomClasses String  @db.VarChar(50)
-  idParcours Int
+  idParcours Int?
 
-  parcours   parcours @relation(fields: [idParcours], references: [idParcours], onDelete: Cascade,  onUpdate: Restrict, map: "parcours_ibfk_1")
+  parcours   parcours? @relation(fields: [idParcours], references: [idParcours], onDelete: Cascade,  onUpdate: Restrict, map: "parcours_ibfk_1")
   eleves eleves[]
   cours cours[]
   

@@ -52,7 +52,7 @@ CREATE TABLE `parcours` (
 CREATE TABLE `classes` (
     `idClasses` INTEGER NOT NULL AUTO_INCREMENT,
     `nomClasses` VARCHAR(50) NOT NULL,
-    `idParcours` INTEGER NOT NULL,
+    `idParcours` INTEGER NULL,
 
     INDEX `idParcours`(`idParcours`),
     PRIMARY KEY (`idClasses`)
@@ -61,7 +61,7 @@ CREATE TABLE `classes` (
 -- CreateTable
 CREATE TABLE `notes` (
     `idNotes` INTEGER NOT NULL AUTO_INCREMENT,
-    `note` INTEGER NOT NULL,
+    `note` DOUBLE NOT NULL,
     `idMatieres` INTEGER NOT NULL,
     `idEleves` INTEGER NOT NULL,
 
@@ -89,12 +89,6 @@ CREATE TABLE `_classesTocours` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `_classesTocours` ADD CONSTRAINT `_classesTocours_A_fkey` FOREIGN KEY (`A`) REFERENCES `classes`(`idClasses`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_classesTocours` ADD CONSTRAINT `_classesTocours_B_fkey` FOREIGN KEY (`B`) REFERENCES `cours`(`idCours`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `eleves` ADD CONSTRAINT `classes_ibfk_1` FOREIGN KEY (`idClasses`) REFERENCES `classes`(`idClasses`) ON DELETE RESTRICT ON UPDATE RESTRICT;
 
 -- AddForeignKey
@@ -117,3 +111,9 @@ ALTER TABLE `_matieresToparcours` ADD CONSTRAINT `_matieresToparcours_A_fkey` FO
 
 -- AddForeignKey
 ALTER TABLE `_matieresToparcours` ADD CONSTRAINT `_matieresToparcours_B_fkey` FOREIGN KEY (`B`) REFERENCES `parcours`(`idParcours`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_classesTocours` ADD CONSTRAINT `_classesTocours_A_fkey` FOREIGN KEY (`A`) REFERENCES `classes`(`idClasses`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_classesTocours` ADD CONSTRAINT `_classesTocours_B_fkey` FOREIGN KEY (`B`) REFERENCES `cours`(`idCours`) ON DELETE CASCADE ON UPDATE CASCADE;

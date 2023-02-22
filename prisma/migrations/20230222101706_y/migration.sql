@@ -3,7 +3,7 @@ CREATE TABLE `eleves` (
     `idEleves` INTEGER NOT NULL AUTO_INCREMENT,
     `nomEleves` VARCHAR(50) NOT NULL,
     `prenomEleves` VARCHAR(50) NOT NULL,
-    `idClasses` INTEGER NOT NULL,
+    `idClasses` INTEGER NULL,
 
     INDEX `idClasses`(`idClasses`),
     PRIMARY KEY (`idEleves`)
@@ -29,7 +29,7 @@ CREATE TABLE `matieres` (
 -- CreateTable
 CREATE TABLE `cours` (
     `idCours` INTEGER NOT NULL AUTO_INCREMENT,
-    `idFormateurs` INTEGER NOT NULL,
+    `idFormateurs` INTEGER NULL,
     `idMatieres` INTEGER NOT NULL,
     `dateDebut` DATETIME(3) NOT NULL,
     `dateFin` DATETIME(3) NOT NULL,
@@ -89,13 +89,13 @@ CREATE TABLE `_classesTocours` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `eleves` ADD CONSTRAINT `classes_ibfk_1` FOREIGN KEY (`idClasses`) REFERENCES `classes`(`idClasses`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `eleves` ADD CONSTRAINT `classes_ibfk_1` FOREIGN KEY (`idClasses`) REFERENCES `classes`(`idClasses`) ON DELETE SET NULL ON UPDATE RESTRICT;
 
 -- AddForeignKey
 ALTER TABLE `cours` ADD CONSTRAINT `matieres_ibfk_1` FOREIGN KEY (`idMatieres`) REFERENCES `matieres`(`idMatieres`) ON DELETE CASCADE ON UPDATE RESTRICT;
 
 -- AddForeignKey
-ALTER TABLE `cours` ADD CONSTRAINT `formateurs_ibfk_1` FOREIGN KEY (`idFormateurs`) REFERENCES `formateurs`(`idFormateurs`) ON DELETE RESTRICT ON UPDATE RESTRICT;
+ALTER TABLE `cours` ADD CONSTRAINT `formateurs_ibfk_1` FOREIGN KEY (`idFormateurs`) REFERENCES `formateurs`(`idFormateurs`) ON DELETE SET NULL ON UPDATE RESTRICT;
 
 -- AddForeignKey
 ALTER TABLE `classes` ADD CONSTRAINT `parcours_ibfk_1` FOREIGN KEY (`idParcours`) REFERENCES `parcours`(`idParcours`) ON DELETE CASCADE ON UPDATE RESTRICT;

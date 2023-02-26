@@ -30,8 +30,8 @@ INSERT INTO `notes` (`idNotes`, `note`, `idMatieres`, `idEleves`) VALUES
 
 INSERT INTO `cours` (`idCours`, `idFormateurs`, `idMatieres`, `dateDebut`, `dateFin`, `lieu`) VALUES
 (1, 1, 1, '2023-02-20 14:30:00.000', '2023-02-20 17:30:00.000', 'Monod -  707'),
-(2, 2, 2, '1970-01-01 00:00:00.000', '1970-01-01 00:00:00.000', 'Gorki - K013'),
-(3, 3, 3, '1970-01-01 00:00:00.000', '1970-01-01 00:00:00.000', 'Gorki - K003');
+(2, 2, 2, '2024-01-01 00:00:00.000', '2024-01-01 00:00:00.000', 'Gorki - K013'),
+(3, 3, 3, '2025-01-01 00:00:00.000', '2025-01-01 00:00:00.000', 'Gorki - K003');
 
 INSERT INTO `_classestocours` (`A`, `B`) VALUES
 (1, 1),

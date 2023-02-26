@@ -7,30 +7,6 @@ import { buildSchema } from "graphql";
 const app = express()
 const prisma = new PrismaClient()
 
-async function main(){
-
-    const notes = await prisma.notes.findMany({
-        include:{
-            eleves:{
-                include:{
-                    classes:{      
-                    }
-                }
-            },
-            matieres : true
-        }
-    })
-
-console.log(notes)
-
-}
-
-main().then((value)=>{
-
-}).catch((err) =>{
-}).finally( async ()=>{
-    await prisma.$disconnect();
-})
 
 let schema = buildSchema(`
     
@@ -996,8 +972,7 @@ addParcours : async ({id, nom}) => {
              }
         })
             
-        if(coursLieuD[0]) throw new Error('Cours même lieu même horraire existe deja') // a revoir
-
+        if(coursLieuD[0]) throw new Error('Cours même lieu même horraire existe deja') 
         const idFormateursF = await prisma.formateurs.findUnique({
             where:{
                  idFormateurs : id,
